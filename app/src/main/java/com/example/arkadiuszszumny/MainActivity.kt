@@ -21,6 +21,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.arkadiuszszumny.ui.screen.GameScreen
+import com.example.arkadiuszszumny.ui.screen.ProfileScreen
+import com.example.arkadiuszszumny.ui.screen.ResultsScreen
 
 import com.example.arkadiuszszumny.ui.theme.ArkadiuszszumnyTheme
 
@@ -71,8 +74,11 @@ fun NavigationGraph(navController: NavHostController) {
             ProfileScreen(navController = navController)
         }
         composable(
-            "game/{colors}",
-            arguments = listOf(navArgument("colors") { type = NavType.IntType }),
+            "game/{colors}/{playerId}",
+            arguments = listOf(
+                navArgument("colors") { type = NavType.IntType },
+                navArgument("playerId") { type = NavType.LongType }
+                ),
             enterTransition = {
                 fadeIn(animationSpec = tween(1000)) + slideInHorizontally(
                     initialOffsetX = { it },
@@ -87,7 +93,8 @@ fun NavigationGraph(navController: NavHostController) {
             }
         ) { backStackEntry ->
             val colors = backStackEntry.arguments?.getInt("colors") ?: 0
-            GameScreen(navController = navController, colors = colors)
+            val playerId = backStackEntry.arguments?.getLong("playerId") ?: 0
+            GameScreen(navController = navController, colors = colors, playerId = playerId)
         }
         composable(
             "results/{score}",
@@ -111,7 +118,8 @@ fun NavigationGraph(navController: NavHostController) {
                 onPlayAgain = {
                     val previousBackStackEntry = navController.previousBackStackEntry
                     val colors = previousBackStackEntry?.arguments?.getInt("colors") ?: 4
-                    navController.navigate("game/$colors")
+                    val playerId = previousBackStackEntry?.arguments?.getLong("playerId") ?: 0
+                    navController.navigate("game/$colors/$playerId")
                 },
                 onLogout = {
                     navController.popBackStack("login", inclusive = false)
